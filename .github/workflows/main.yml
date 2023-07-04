@@ -12,4 +12,14 @@ jobs:
     - name: Extract
       run: Expand-Archive ngrok.zip
     - name: Auth
-      run: .\ngrok\ngrok.exe 
+      run: .\ngrok\ngrok.exe authtoke $Env:NGROK_TOKEN
+      env:
+        NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
+    - name: Enable TS
+      run: Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -name "fDenyTSConnections" -Value 0
+    - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+    - run: Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP.Tcp" -name "UserAuthentication" -Value 1
+    - run: Set-LocalUser -Name "pixelradio" -Password (ConvertTo-SecureString "pixeladmin" -Force)
+    - name: Create Tunnel
+      run: .\ngrok\ngrok.exe tcp 3389
+      
